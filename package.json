@@ -1,0 +1,27 @@
+{
+  "name": "phabricator-test-reloader",
+  "version": "1.3.2",
+  "description": "Reload the Phabricator Differential page periodically while tests run.",
+  "main": "phabricator-test-reloader.user.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirbrillig/phabricator-test-reloader.git"
+  },
+  "keywords": [
+    "phabricator",
+    "tampermonkey",
+    "greasemonkey"
+  ],
+  "author": "Payton Swick <payton@foolord.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sirbrillig/phabricator-test-reloader/issues"
+  },
+  "homepage": "https://github.com/sirbrillig/phabricator-test-reloader#readme",
+  "devDependencies": {
+    "eslint": "^8.10.0"
+  }
+}
