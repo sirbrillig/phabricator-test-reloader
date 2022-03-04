@@ -134,7 +134,9 @@
             addTestMarkToTitle('pass');
             return;
         }
-        addTestMarkToTitle('pending');
+        if (areTestsRunning()) {
+          addTestMarkToTitle('pending');
+        }
     }
     function startRefreshTimer() {
         setTimeout(refreshIfNeeded, refreshInterval);
