@@ -15,6 +15,8 @@
     const refreshInterval = 1000 * 15;
     const successMark = '✅ ';
     const failMark = '❌ ';
+    const closedMark = '🚢 ';
+    const pendingMark = '⏳ ';
     const topOfPageOffsetForRefresh = 300;
     const lastAutoRefreshKeyPrefix = 'phabricator-test-reloader-last-auto-refresh-';
 
@@ -29,6 +31,9 @@
             return false;
         }
         return isVisible(buildArea);
+    }
+    function isRevisionClosed() {
+        return Array.from(document.querySelectorAll('.phui-header-subheader')).some(el => el.textContent.includes('Closed'));
     }
     function areTestsRunning() {
         return document.querySelectorAll('.phui-status-list-view .phui-icon-view.fa-chevron-circle-right.blue').length > 0;
@@ -49,12 +54,11 @@
         window.location.reload();
     }
     function refreshIfNeeded() {
+        markTitleForTestStatus();
         if (!areTestsRunning()) {
-            markTitleForTestStatus();
             return;
         }
         if (didTestsFail()) {
-            markTitleForTestStatus();
             return;
         }
         if (areWeAtPageTop() || isBuildAreaVisible()) {
@@ -93,24 +97,45 @@
     function isOffline() {
         return ! window.navigator.onLine;
     }
-    function addTestMarkToTitle(isSuccess) {
+    function getMarkForType(type) {
+        switch (type) {
+            case 'fail':
+                return failMark;
+            case 'pass':
+                return successMark;
+            case 'pending':
+                return pendingMark;
+            case 'closed':
+                return closedMark;
+        }
+    }
+    function addTestMarkToTitle(type) {
         let link = document.querySelector("link[rel~='icon']");
         if (!link) {
             link = document.createElement('link');
             link.rel = 'icon';
             document.getElementsByTagName('head')[0].appendChild(link);
         }
-        const mark = isSuccess ? successMark : failMark;
-        link.setAttribute('href', `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${mark}</text></svg>`);
+        const mark = getMarkForType(type);
+        if (mark) {
+            link.setAttribute('href', `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${mark}</text></svg>`);
+        }
     }
     function markTitleForTestStatus() {
+        if (isRevisionClosed()) {
+            addTestMarkToTitle('closed');
+            return;
+        }
         if (didTestsFail()) {
-            addTestMarkToTitle(false);
+            addTestMarkToTitle('fail');
             return;
         }
         if (didTestsPass()) {
-            addTestMarkToTitle(true);
+            addTestMarkToTitle('pass');
             return;
+        }
+        if (areTestsRunning()) {
+          addTestMarkToTitle('pending');
         }
     }
     function startRefreshTimer() {
@@ -122,6 +147,9 @@
         }
         markTitleForTestStatus();
         watchRefocus(() => {
+            if (isRevisionClosed()) {
+                return;
+            }
             if (shouldAutoRefreshOnFocus() && ! isOffline() && (areWeAtPageTop() || isBuildAreaVisible())) {
                 setLastAutoRefreshTime();
                 refreshPage();
