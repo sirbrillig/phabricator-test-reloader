@@ -20,7 +20,8 @@
 	const topOfPageOffsetForRefresh = 300;
 	const lastAutoRefreshKeyPrefix =
 		'phabricator-test-reloader-last-auto-refresh-';
-	const shouldUseDebug = window.localStorage.getItem('debug') === 'phabricator-test-reloader';
+	const shouldUseDebug =
+		window.localStorage.getItem('debug') === 'phabricator-test-reloader';
 
 	function debug(...args) {
 		if (!shouldUseDebug) {
@@ -98,11 +99,15 @@
 		if (didTestsFail()) {
 			return;
 		}
-		if (areWeAtPageTop() || isBuildAreaVisible()) {
+		if (areWeAtPageTop() || isBuildAreaVisible() || !isPageActive()) {
 			refreshPage();
 			return;
 		}
 		startRefreshTimer();
+	}
+
+	function isPageActive() {
+		return !document.hidden;
 	}
 
 	function watchRefocus(callback) {
@@ -217,7 +222,7 @@
 			if (
 				shouldAutoRefreshOnFocus() &&
 				!isOffline() &&
-				(areWeAtPageTop() || isBuildAreaVisible())
+				(areWeAtPageTop() || isBuildAreaVisible() || !isPageActive())
 			) {
 				debug('refocus causing refresh');
 				setLastAutoRefreshTime();
