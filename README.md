@@ -1,7 +1,7 @@
 
 This script will periodically reload the page of a Phabricator Revision while its tests are running. It will stop when either the tests pass or fail.
 
-The page will not reload if you are viewing the diff's contents, only if you are near the top of the page or watching the tests area.
+The page will not reload if you are viewing the diff's contents, only if you are near the top of the page, watching the tests area, or if the tab is not in focus.
 
 When the Revision loads, the favicon will be updated to either ✅ or ❌ if the tests have passed or failed, respectively. If the tests are still running, the icon will be ⏳. Closed Revisions will have the icon 🚢.
 
