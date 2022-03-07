@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Phabricator Test Reloader
 // @namespace    https://github.com/sirbrillig/phabricator-test-reloader
-// @version      1.1.0
+// @version      1.1.1-beta.1
 // @description  Reload the Phabricator Differential page periodically while tests run.
 // @author       Payton Swick <payton@foolord.com>
 // @match        https://code.a8c.com/D*
@@ -20,6 +20,15 @@
 	const topOfPageOffsetForRefresh = 300;
 	const lastAutoRefreshKeyPrefix =
 		'phabricator-test-reloader-last-auto-refresh-';
+	const shouldUseDebug = window.localStorage.getItem('debug') === 'phabricator-test-reloader';
+
+	function debug(...args) {
+		if (!shouldUseDebug) {
+			return;
+		}
+		const output = ['phabricator-test-reloader: ', ...args].join(' ');
+		console.log(output);
+	}
 
 	function isVisible(elm) {
 		const rect = elm.getBoundingClientRect();
@@ -150,6 +159,7 @@
 	}
 
 	function addTestMarkToTitle(type) {
+		debug('marking title as', type);
 		let link = document.querySelector("link[rel~='icon']");
 		if (!link) {
 			link = document.createElement('link');
@@ -157,12 +167,14 @@
 			document.getElementsByTagName('head')[0].appendChild(link);
 		}
 		const mark = getMarkForType(type);
-		if (mark) {
-			link.setAttribute(
-				'href',
-				`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${mark}</text></svg>`,
-			);
+		if (!mark) {
+			debug('no mark found for type', type);
+			return;
 		}
+		link.setAttribute(
+			'href',
+			`data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${mark}</text></svg>`,
+		);
 	}
 
 	function markTitleForTestStatus() {
@@ -180,20 +192,26 @@
 		}
 		if (areTestsRunning()) {
 			addTestMarkToTitle('pending');
+			return;
 		}
+		debug('no test status could be determined');
 	}
 
 	function startRefreshTimer() {
+		debug('starting refresh timer');
 		setTimeout(refreshIfNeeded, refreshInterval);
 	}
 
 	function begin() {
+		debug('starting');
 		if (areTestsRunning()) {
 			startRefreshTimer();
 		}
 		markTitleForTestStatus();
 		watchRefocus(() => {
+			debug('refocus triggered');
 			if (isRevisionClosed()) {
+				debug('refocus ignored because revision is closed');
 				return;
 			}
 			if (
@@ -201,6 +219,7 @@
 				!isOffline() &&
 				(areWeAtPageTop() || isBuildAreaVisible())
 			) {
+				debug('refocus causing refresh');
 				setLastAutoRefreshTime();
 				refreshPage();
 			}
