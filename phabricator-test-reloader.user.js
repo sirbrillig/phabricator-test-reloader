@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Phabricator Test Reloader
 // @namespace    https://github.com/sirbrillig/phabricator-test-reloader
-// @version      1.1.1-beta.1
+// @version      1.2.0
 // @description  Reload the Phabricator Differential page periodically while tests run.
 // @author       Payton Swick <payton@foolord.com>
 // @match        https://code.a8c.com/D*
