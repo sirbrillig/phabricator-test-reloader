@@ -209,12 +209,12 @@
 
 	function begin() {
 		debug('starting');
-		if (areTestsRunning()) {
-			startRefreshTimer();
-		}
+		startRefreshTimer();
 		markTitleForTestStatus();
 		watchRefocus(() => {
 			debug('refocus triggered');
+			// Re-mark title on focus since other scripts might have overwritten the mark.
+			markTitleForTestStatus();
 			if (isRevisionClosed()) {
 				debug('refocus ignored because revision is closed');
 				return;
