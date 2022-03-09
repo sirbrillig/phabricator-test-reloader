@@ -91,15 +91,22 @@
 		window.location.reload();
 	}
 
-	function refreshIfNeeded() {
-		markTitleForTestStatus();
+	function shouldRefresh() {
 		if (!areTestsRunning()) {
-			return;
+			return false;
 		}
 		if (didTestsFail()) {
-			return;
+			return false;
 		}
 		if (areWeAtPageTop() || isBuildAreaVisible() || !isPageActive()) {
+			return true;
+		}
+		return false;
+	}
+
+	function refreshIfNeeded() {
+		markTitleForTestStatus();
+		if (shouldRefresh()) {
 			refreshPage();
 			return;
 		}
